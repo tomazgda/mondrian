@@ -1,0 +1,62 @@
+(* Mondrian - A library for creating and displaying tables *)
+
+(** a tree_index is a path along *)
+type tree_index = int list
+
+(** A table_index is a pair of tree-indexes. *)
+type table_index = tree_index * tree_index
+
+(** A tile is a piar of table-index and a value *)
+type tile = {
+    index: table_index;
+    value : string
+  }
+
+(** A shape is a labelled ordered tree, whose labels are the number of children of that
+    node. *)
+type shape = Node of int * shape list
+
+(** A table is
+    - a row shape and a column shape
+    - a set of tilings; and
+    such that:
+    (a) No tile index covers another
+    (b) Every pair of a leaf of a row-tree-index and a leaf of a column-tree-index is
+    covered by one tile index *)
+type table =
+  {
+    row_shape : shape;
+    col_shape : shape;
+    tiling : tile list
+  }
+
+type cell =
+  | Table of table
+  | Value of string
+
+val make_tree : int -> shape list -> shape
+val tree_ref : shape -> int list -> int
+val branch_ref : shape -> int list -> int list
+val is_valid_tree_ref : shape -> int list -> bool
+
+(** Create a table consiting of a single cell, whose contents is a string v *)
+val table_cell : ?rowspan:int -> ?colspan:int -> string -> table
+
+(** Join multiple tables together to make a single row. *)
+val table_row : cell -> cell list -> table
+
+(** Join multiple tables together to make a single column *)
+val table_col : cell -> cell list -> table
+
+(** Format a table into a list of rows, where each row is a list of strings *)
+(* val table_format *)
+
+(** Format a table as a single string, including line breaks, with row and column "rules."
+    Rules are characters which are inserted between columns and between rows, The default
+    rule maker is equivalent to make_standard_rule_maker "-" "|" and inserts '|' between
+    the columns and '-' between the rows.*)
+(* val table_pretty_print *)
+
+(** Returns a procedure suitable for passing to table_pretty_print to generate the
+    appropriate column and row seperators. *)
+(* val make_standard_rule_maker *)
